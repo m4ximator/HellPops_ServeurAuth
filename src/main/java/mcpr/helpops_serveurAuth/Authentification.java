@@ -1,4 +1,4 @@
-package serveur.auth;
+package mcpr.helpops_serveurAuth;
 
 import commun.interfaces.IAuthService;
 
