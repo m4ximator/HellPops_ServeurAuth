@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
 public class Authentification extends UnicastRemoteObject implements IAuthService {
 
     private final Map<String, User> sessionsActives = new ConcurrentHashMap<>();
@@ -34,11 +37,36 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
 
     @Override
     public void inscription(String username, String passwd) {
-        User user = new User(username, passwd);
+
+        String mdp_chiff = HashMdp(passwd);
+
+        User user = new User(username, mdp_chiff);
         utilisateursEnBase.add(user);
+
         System.out.println("Nouvel utilisateur inscrit en base : " + username);
         //ecriture dans le fichier JSON
         sauvegarderDonnees();
+    }
+
+    // classe permettant de chiffrer le mdp de l'utilisateur lors de l'inscription / connexion
+    private String HashMdp (String mdp){
+
+        try {
+            MessageDigest sha_256 = MessageDigest.getInstance("SHA-256");
+            byte [] hash = sha_256.digest(mdp.getBytes());
+
+            StringBuilder hash_hexa = new StringBuilder();
+            for  (byte b : hash) {
+                hash_hexa.append(String.format("%02x", b));
+            }
+
+            return hash_hexa.toString();
+        }
+
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
@@ -83,14 +111,16 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return new Jeton(dateExp);
     }
 
-
     public User chercherUser(String username, String password) {
-        //ajouter du hashage et chiffrement
+
+        String mdp_chiff = HashMdp(password);
+
         for (User user : utilisateursEnBase) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(mdp_chiff)) {
                 return user;
             }
         }
+
         return null;
     }
 
