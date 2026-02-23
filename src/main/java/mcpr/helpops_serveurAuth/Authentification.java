@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class Authentification extends UnicastRemoteObject implements IAuthService {
@@ -49,21 +48,19 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
     }
 
     // classe permettant de chiffrer le mdp de l'utilisateur lors de l'inscription / connexion
-    private String HashMdp (String mdp){
+    private String HashMdp(String mdp) {
 
         try {
             MessageDigest sha_256 = MessageDigest.getInstance("SHA-256");
-            byte [] hash = sha_256.digest(mdp.getBytes());
+            byte[] hash = sha_256.digest(mdp.getBytes());
 
             StringBuilder hash_hexa = new StringBuilder();
-            for  (byte b : hash) {
+            for (byte b : hash) {
                 hash_hexa.append(String.format("%02x", b));
             }
 
             return hash_hexa.toString();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -78,11 +75,11 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
             Jeton jeton = delivrerJeton();
             sessionsActives.put(jeton.getValeur(), userTrouve);
             chaine.append("Connexion reussie pour : ").append(username);
-            System.out.println(chaine.toString());
+            System.out.println(chaine);
             return jeton;
         }
         chaine.append("Tentative de connexion echouee pour : ").append(username);
-        System.out.println(chaine.toString());
+        System.out.println(chaine);
         return null;
     }
 
@@ -103,6 +100,15 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         // Vérification validite jeton
         if (jeton == null) return false;
         return sessionsActives.containsKey(jeton.getValeur()) && jeton.getDateExpiration().after(new Date());
+    }
+
+    @Override
+    public String getLoginParJeton(Jeton jeton) throws RemoteException {
+        if (estValide(jeton)) {
+            User u = sessionsActives.get(jeton.getValeur());
+            return (u != null) ? u.getUsername() : null;
+        }
+        return null;
     }
 
     private Jeton delivrerJeton() {
@@ -139,7 +145,8 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         if (fichier.exists()) {
             try (FileReader reader = new FileReader(fichier)) {
                 //Astuce Gson pour lire une liste typée (permet d'instancier le bon type)
-                Type typeListe = new TypeToken<List<User>>() {}.getType();
+                Type typeListe = new TypeToken<List<User>>() {
+                }.getType();
                 List<User> usersCharges = gson.fromJson(reader, typeListe);
 
                 if (usersCharges != null) {
