@@ -35,20 +35,39 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
     }
 
     @Override
-    public void inscription(String username, String passwd) {
+    public boolean inscription(String username, String passwd) {
 
         String mdp_chiff = HashMdp(passwd);
+
+        if (verif_login_doublon(username)) {
+            System.out.println("Inscription refusée, login déjà existant ! ");
+            return false;
+        }
 
         User user = new User(username, mdp_chiff);
         utilisateursEnBase.add(user);
 
         System.out.println("Nouvel utilisateur inscrit en base : " + username);
+
         //ecriture dans le fichier JSON
         sauvegarderDonnees();
+
+        return true;
+    }
+
+    private boolean verif_login_doublon(String login) {
+
+        for (User user : utilisateursEnBase) {
+            if (user.getUsername().equals(login)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // classe permettant de chiffrer le mdp de l'utilisateur lors de l'inscription / connexion
-    private String HashMdp(String mdp) {
+    public String HashMdp(String mdp) {
 
         try {
             MessageDigest sha_256 = MessageDigest.getInstance("SHA-256");
