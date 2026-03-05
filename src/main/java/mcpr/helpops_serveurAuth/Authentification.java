@@ -44,7 +44,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
             return false;
         }
 
-        User user = new User(username, mdp_chiff);
+        User user = new Client(username, mdp_chiff);
         utilisateursEnBase.add(user);
 
         System.out.println("Nouvel utilisateur inscrit en base : " + username);
@@ -121,6 +121,12 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return sessionsActives.containsKey(jeton.getValeur()) && jeton.getDateExpiration().after(new Date());
     }
 
+    private Jeton delivrerJeton() {
+        long deuxJours = 2L * 24 * 60 * 60 * 1000;
+        Date dateExp = new Date(System.currentTimeMillis() + deuxJours);
+        return new Jeton(dateExp);
+    }
+
     @Override
     public String getLoginParJeton(Jeton jeton) throws RemoteException {
         if (estValide(jeton)) {
@@ -130,11 +136,17 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return null;
     }
 
-    private Jeton delivrerJeton() {
-        long deuxJours = 2L * 24 * 60 * 60 * 1000;
-        Date dateExp = new Date(System.currentTimeMillis() + deuxJours);
-        return new Jeton(dateExp);
-    }
+   @Override
+   public String getRoleParJeton(Jeton jeton) throws RemoteException {
+
+        if (estValide(jeton)) {
+           User u = sessionsActives.get(jeton.getValeur());
+           return (u != null) ? u.getRole() : null;
+        }
+
+        return null;
+
+   }
 
     public User chercherUser(String username, String password) {
 
