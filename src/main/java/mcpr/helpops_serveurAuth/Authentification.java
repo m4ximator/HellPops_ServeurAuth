@@ -44,7 +44,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
             return false;
         }
 
-        User user = new Client(username, mdp_chiff);
+        User user = new User(username, mdp_chiff, Role.Utilisateur);
         utilisateursEnBase.add(user);
 
         System.out.println("Nouvel utilisateur inscrit en base : " + username);
@@ -135,18 +135,6 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         }
         return null;
     }
-
-   @Override
-   public String getRoleParJeton(Jeton jeton) throws RemoteException {
-
-        if (estValide(jeton)) {
-           User u = sessionsActives.get(jeton.getValeur());
-           return (u != null) ? u.getRole() : null;
-        }
-
-        return null;
-
-   }
 
     public User chercherUser(String username, String password) {
 
