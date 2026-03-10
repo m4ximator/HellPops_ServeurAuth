@@ -1,5 +1,7 @@
 package mcpr.helpops_serveurAuth;
 
+import mcpr.hellpops_interfaces.Role;
+
 public class User {
 
     private final String username;
