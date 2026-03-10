@@ -10,6 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import mcpr.hellpops_interfaces.Role;
 
 import java.lang.reflect.Type;
 
@@ -44,7 +45,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
             return false;
         }
 
-        User user = new User(username, mdp_chiff, Role.Utilisateur);
+        User user = new User(username, mdp_chiff, Role.UTILISATEUR);
         utilisateursEnBase.add(user);
 
         System.out.println("Nouvel utilisateur inscrit en base : " + username);
@@ -55,35 +56,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return true;
     }
 
-    private boolean verif_login_doublon(String login) {
 
-        for (User user : utilisateursEnBase) {
-            if (user.getUsername().equals(login)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // classe permettant de chiffrer le mdp de l'utilisateur lors de l'inscription / connexion
-    public String HashMdp(String mdp) {
-
-        try {
-            MessageDigest sha_256 = MessageDigest.getInstance("SHA-256");
-            byte[] hash = sha_256.digest(mdp.getBytes());
-
-            StringBuilder hash_hexa = new StringBuilder();
-            for (byte b : hash) {
-                hash_hexa.append(String.format("%02x", b));
-            }
-
-            return hash_hexa.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     @Override
     public Jeton connexion(String username, String password) throws RemoteException {
@@ -91,7 +64,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         User userTrouve = chercherUser(username, password);
 
         if (userTrouve != null) {
-            Jeton jeton = delivrerJeton();
+            Jeton jeton = delivrerJeton(userTrouve);
             sessionsActives.put(jeton.getValeur(), userTrouve);
             chaine.append("Connexion reussie pour : ").append(username);
             System.out.println(chaine);
@@ -121,10 +94,12 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return sessionsActives.containsKey(jeton.getValeur()) && jeton.getDateExpiration().after(new Date());
     }
 
-    private Jeton delivrerJeton() {
+
+    private Jeton delivrerJeton(User userCo) {
         long deuxJours = 2L * 24 * 60 * 60 * 1000;
         Date dateExp = new Date(System.currentTimeMillis() + deuxJours);
-        return new Jeton(dateExp);
+        return new Jeton(dateExp,userCo.getUsername(), userCo.getRole()
+        );
     }
 
     @Override
@@ -134,6 +109,48 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
             return (u != null) ? u.getUsername() : null;
         }
         return null;
+    }
+
+    @Override
+    public Role getRoleParJeton(Jeton jeton) throws RemoteException {
+
+        if (estValide(jeton)) {
+            User u = sessionsActives.get(jeton.getValeur());
+            return (u != null) ? u.getRole() : null;
+        }
+
+        return null;
+
+    }
+
+    private boolean verif_login_doublon(String login) {
+
+        for (User user : utilisateursEnBase) {
+            if (user.getUsername().equals(login)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // methode permettant de chiffrer le mdp de l'utilisateur lors de l'inscription / connexion
+    public String HashMdp(String mdp) {
+
+        try {
+            MessageDigest sha_256 = MessageDigest.getInstance("SHA-256");
+            byte[] hash = sha_256.digest(mdp.getBytes());
+
+            StringBuilder hash_hexa = new StringBuilder();
+            for (byte b : hash) {
+                hash_hexa.append(String.format("%02x", b));
+            }
+
+            return hash_hexa.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public User chercherUser(String username, String password) {
