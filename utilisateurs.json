@@ -1,0 +1,17 @@
+[
+  {
+    "username": "agent1",
+    "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "role": "UTILISATEUR"
+  },
+  {
+    "username": "agent007",
+    "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "role": "AGENT"
+  },
+  {
+    "username": "agent2",
+    "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "role": "AGENT"
+  }
+]
