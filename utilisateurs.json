@@ -2,7 +2,7 @@
   {
     "username": "agent1",
     "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-    "role": "UTILISATEUR"
+    "role": "AGENT"
   },
   {
     "username": "agent007",
@@ -13,6 +13,10 @@
     "username": "agent2",
     "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
     "role": "AGENT"
+  },
+  {
+    "username": "adn",
+    "password": "dab48036536ad15d2b12b9982c364ecf4ca1334920a45ac607bd55a3a61d8d3f",
+    "role": "UTILISATEUR"
   }
-  
 ]
