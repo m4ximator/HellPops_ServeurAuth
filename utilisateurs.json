@@ -18,5 +18,10 @@
     "username": "adn",
     "password": "dab48036536ad15d2b12b9982c364ecf4ca1334920a45ac607bd55a3a61d8d3f",
     "role": "UTILISATEUR"
+  },
+  {
+    "username": "max",
+    "password": "9baf3a40312f39849f46dad1040f2f039f1cffa1238c41e9db675315cfad39b6",
+    "role": "UTILISATEUR"
   }
 ]
