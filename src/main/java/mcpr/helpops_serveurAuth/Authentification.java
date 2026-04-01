@@ -166,7 +166,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return null;
     }
 
-    private void sauvegarderDonnees() {
+    private synchronized void sauvegarderDonnees() {
         //déclaration dans les parenthèses pour fermeture du fichier automatique
         try (FileWriter writer = new FileWriter(CHEMIN_FICHIER)) {
             //Transformation liste en texte JSON
