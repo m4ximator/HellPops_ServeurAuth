@@ -23,5 +23,18 @@
     "username": "max",
     "password": "9baf3a40312f39849f46dad1040f2f039f1cffa1238c41e9db675315cfad39b6",
     "role": "UTILISATEUR"
+  },
+  {
+  "username": "superviseur1",
+  "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+  "role": "SUPERVISEUR"
+  },
+
+  {
+    "username": "superviseur2",
+    "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "role": "SUPERVISEUR"
   }
+
+
 ]
