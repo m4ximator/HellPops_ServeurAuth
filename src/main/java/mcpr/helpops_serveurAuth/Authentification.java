@@ -35,6 +35,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         chargerDonnees();
     }
 
+    // Permet l'inscription de l'utilisateur si son username n'est pas déjà pris
     @Override
     public boolean inscription(String username, String passwd) {
 
@@ -57,7 +58,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
     }
 
 
-
+    // Connecte un utilisateur en lui associant un jeton, tout en vérifiant son rôle, son mdp et son username
     @Override
     public Jeton connexion(String username, String password) throws RemoteException {
         StringBuilder chaine = new StringBuilder();
@@ -75,6 +76,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return null;
     }
 
+    // supprime le jeton de l'utilisateur et ferme sa session
     @Override
     public void deconnexion(Jeton jeton) {
         if (jeton != null) {
@@ -87,6 +89,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         }
     }
 
+    // Vérifie la validité d'un jeton
     @Override
     public boolean estValide(Jeton jeton) throws RemoteException {
         // Vérification validite jeton
@@ -94,7 +97,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return sessionsActives.containsKey(jeton.getValeur()) && jeton.getDateExpiration().after(new Date());
     }
 
-
+    // Permet de délivrer un jeton à un utilisateur d'une durée de vie de deux jours en l'associant à l'utilisateur
     private Jeton delivrerJeton(User userCo) {
         long deuxJours = 2L * 24 * 60 * 60 * 1000;
         Date dateExp = new Date(System.currentTimeMillis() + deuxJours);
@@ -102,6 +105,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         );
     }
 
+    // Permet d'obtenir le nom d'utilisateur d'un utilisateur en fonction de son jeton d'authentification
     @Override
     public String getLoginParJeton(Jeton jeton) throws RemoteException {
         if (estValide(jeton)) {
@@ -111,32 +115,29 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         return null;
     }
 
+    // Permet d'obtenir le rôle d'un utilisateur en fonction de son jeton d'authentification
     @Override
     public Role getRoleParJeton(Jeton jeton) throws RemoteException {
-
         if (estValide(jeton)) {
             User u = sessionsActives.get(jeton.getValeur());
             return (u != null) ? u.getRole() : null;
         }
-
         return null;
 
     }
 
+    // Vérifie que l'utilisateur cherchant à s'inscrire n'existe pas déjà
     private boolean verif_login_doublon(String login) {
-
         for (User user : utilisateursEnBase) {
             if (user.getUsername().equals(login)) {
                 return true;
             }
         }
-
         return false;
     }
 
     // methode permettant de chiffrer le mdp de l'utilisateur lors de l'inscription / connexion
     public String HashMdp(String mdp) {
-
         try {
             MessageDigest sha_256 = MessageDigest.getInstance("SHA-256");
             byte[] hash = sha_256.digest(mdp.getBytes());
@@ -150,22 +151,20 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
+    //Permet de rechercher un utilisateur dans une liste
     public User chercherUser(String username, String password) {
-
         String mdp_chiff = HashMdp(password);
-
         for (User user : utilisateursEnBase) {
             if (user.getUsername().equals(username) && user.getPassword().equals(mdp_chiff)) {
                 return user;
             }
         }
-
         return null;
     }
 
+    // Permet de sauvegarder le contenu de la liste des utilisateurs dans un fichier json
     private synchronized void sauvegarderDonnees() {
         //déclaration dans les parenthèses pour fermeture du fichier automatique
         try (FileWriter writer = new FileWriter(CHEMIN_FICHIER)) {
@@ -176,6 +175,7 @@ public class Authentification extends UnicastRemoteObject implements IAuthServic
         }
     }
 
+    // Charge les données des utilisateurs depuis le fichier utilisateurs.json
     private void chargerDonnees() {
         File fichier = new File(CHEMIN_FICHIER);
         if (fichier.exists()) {
